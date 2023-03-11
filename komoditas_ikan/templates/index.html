@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.3/css/jquery.dataTables.min.css">
+    
+    <title>Technical Test - Faris</title>
+<body>
+    <div class="container">
+        <div>
+            <h1>Get Schema</h1>
+            {{columns}}
+        </div>
+        <div>
+            <h1>Get All Data</h1>
+            <form method="GET">
+                <div class="form-group row">
+                    <label class="col-form-label">Order By (this filter can use the entire column at once - seperated by ",")</label>
+                    <input class="form-control" type="text" value="{{request.GET.order_by}}" name="order_by"></input>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label">Ascending</label>
+                    <select name="ascending" class="form-control">
+                        <option value="True" {% if request.GET.ascending == 'True' %}selected{% endif %}>True</option>
+                        <option value="False" {% if request.GET.ascending == 'False' %}selected{% endif %}>False</option>
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label">Limit (1 - unlimited, 0 = all data)</label>
+                    <input class="form-control" type="number" value="{{request.GET.limit}}" name="limit"></input>
+                </div>
+                <div class="form-group row">
+                    <input type="submit"></input>
+                </div>
+            </form>
+            <div class="card-body">
+                <table id="list-data" class="table table-bordered table-hover">
+                    <thead class="text-center">
+                        <tr>
+                            <th>No</th>
+                            <th>UUID</th>
+                            <th>Area Provinsi</th>
+                            <th>Area Kota</th>
+                            <th>Komoditas</th>
+                            <th>Size</th>
+                            <th>Price</th>
+                            <th>Price (USD)</th>
+                            <th>Tgl Parsed</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for value in data %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{value.uuid}}</td>
+                            <td>{{value.area_provinsi}}</td>
+                            <td>{{value.area_kota}}</td>
+                            <td>{{value.komoditas}}</td>
+                            <td>{{value.size}}</td>
+                            <td>{{value.price}}</td>
+                            <td>{{value.price_in_usd}}</td>
+                            <td>{{value.tgl_parsed}}</td>
+                            <td>{{value.timestamp}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        <div>
+            <h1>Get Data By Id</h1>
+            <form method="GET">
+                <div class="form-group row">
+                    <label class="col-form-label">UUID</label>
+                    <input class="form-control" type="text" value="{{request.GET.filter_id}}" name="filter_id"></input>
+                </div>
+                <div class="form-group row">
+                    <input type="submit"></input>
+                </div>
+            </form>
+            <div class="card-body">
+                <p>{{data_by_id}}</p>
+            </div>
+        </div>
+        <div>
+            <h1>Get Data By Column Value</h1>
+            <form method="GET">
+                <div class="form-group row">
+                    <label class="col-form-label">Column Name</label>
+                    <select name="filter_column" class="form-control">
+                        <option value="area_provinsi" {% if request.GET.filter_column == 'area_provinsi' %}selected{% endif %}>Area Provinsi</option>
+                        <option value="area_kota" {% if request.GET.filter_column == 'area_kota' %}selected{% endif %}>Area Kota</option>
+                        <option value="komoditas" {% if request.GET.filter_column == 'komoditas' %}selected{% endif %}>Komoditas</option>
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label">Value</label>
+                    <input class="form-control" type="text" value="{{request.GET.column_value}}" name="column_value"></input>
+                </div>
+                <div class="form-group row">
+                    <input type="submit"></input>
+                </div>
+            </form>
+            <div class="card-body">
+                <table id="list-filtered-data" class="table table-bordered table-hover">
+                    <thead class="text-center">
+                        <tr>
+                            <th>No</th>
+                            <th>UUID</th>
+                            <th>Area Provinsi</th>
+                            <th>Area Kota</th>
+                            <th>Komoditas</th>
+                            <th>Size</th>
+                            <th>Price</th>
+                            <th>Price (USD)</th>
+                            <th>Tgl Parsed</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for value in data_by_column_value %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{value.uuid}}</td>
+                            <td>{{value.area_provinsi}}</td>
+                            <td>{{value.area_kota}}</td>
+                            <td>{{value.komoditas}}</td>
+                            <td>{{value.size}}</td>
+                            <td>{{value.price}}</td>
+                            <td>{{value.price_in_usd}}</td>
+                            <td>{{value.tgl_parsed}}</td>
+                            <td>{{value.timestamp}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div>
+            <h1>Filter Data by Range</h1>
+            <form method="GET">
+                <div class="form-group row">
+                    <label class="col-form-label">Column Name</label>
+                    <select name="range_name" class="form-control">
+                        <option value="price" {% if request.GET.range_name == 'price' %}selected{% endif %}>Price</option>
+                        <option value="size" {% if request.GET.range_name == 'size' %}selected{% endif %}>Size</option>
+                        <option value="timestamp" {% if request.GET.range_name == 'timestamp' %}selected{% endif %}>Timestamp</option>
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label">start (0 - unlimited)</label>
+                    <input class="form-control" type="bool" value="{{request.GET.start}}" name="start"></input>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label">end (0 - unlimited)</label>
+                    <input class="form-control" type="number" value="{{request.GET.end}}" name="end"></input>
+                </div>
+                <div class="form-group row">
+                    <input type="submit"></input>
+                </div>
+            </form>
+            <div class="card-body">
+                <table id="list-range-data" class="table table-bordered table-hover">
+                    <thead class="text-center">
+                        <tr>
+                            <th>No</th>
+                            <th>UUID</th>
+                            <th>Area Provinsi</th>
+                            <th>Area Kota</th>
+                            <th>Komoditas</th>
+                            <th>Size</th>
+                            <th>Price</th>
+                            <th>Price (USD)</th>
+                            <th>Tgl Parsed</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for value in data_by_range %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{value.uuid}}</td>
+                            <td>{{value.area_provinsi}}</td>
+                            <td>{{value.area_kota}}</td>
+                            <td>{{value.komoditas}}</td>
+                            <td>{{value.size}}</td>
+                            <td>{{value.price}}</td>
+                            <td>{{value.price_in_usd}}</td>
+                            <td>{{value.tgl_parsed}}</td>
+                            <td>{{value.timestamp}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div>
+            <h1>Get Max Value</h1>
+            <form method="GET">
+                <div class="form-group row">
+                    <label class="col-form-label">Column Name</label>
+                    <select name="max_column" class="form-control">
+                        <option value="price" {% if request.GET.max_column == 'price' %}selected{% endif %}>Price</option>
+                        <option value="size" {% if request.GET.max_column == 'size' %}selected{% endif %}>Size</option>
+                        <option value="timestamp" {% if request.GET.max_column == 'timestamp' %}selected{% endif %}>Timestamp</option>
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <input type="submit"></input>
+                </div>
+            </form>
+            <div class="card-body">
+                <p>{{max_column}}</p>
+            </div>
+        </div>
+        <div>
+            <h1>Get Max Value by Range (Timestamp)</h1>
+            <form method="GET">
+                <div class="form-group row">
+                    <label class="col-form-label">Column Name</label>
+                    <select name="max_column_by_range" class="form-control">
+                        <option value="price" {% if request.GET.max_column_by_range == 'price' %}selected{% endif %}>Price</option>
+                        <option value="size" {% if request.GET.max_column_by_range == 'size' %}selected{% endif %}>Size</option>
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label">start</label>
+                    <input class="form-control" type="number" value="{{request.GET.start_max}}" name="start_max"></input>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label">end</label>
+                    <input class="form-control" type="number" value="{{request.GET.end_max}}" name="end_max"></input>
+                </div>
+                <div class="form-group row">
+                    <input type="submit"></input>
+                </div>
+            </form>
+            <div class="card-body">
+                <p>{{max_column_by_range}}</p>
+            </div>
+        </div>
+        <div>
+            <h1>Get Min Value</h1>
+            <form method="GET">
+                <div class="form-group row">
+                    <label class="col-form-label">Column Name</label>
+                    <select name="min_column" class="form-control">
+                        <option value="price" {% if request.GET.min_column == 'price' %}selected{% endif %}>Price</option>
+                        <option value="size" {% if request.GET.min_column == 'size' %}selected{% endif %}>Size</option>
+                        <option value="timestamp" {% if request.GET.min_column == 'timestamp' %}selected{% endif %}>Timestamp</option>
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <input type="submit"></input>
+                </div>
+            </form>
+            <div class="card-body">
+                <p>{{min_column}}</p>
+            </div>
+        </div>
+        <div>
+            <h1>Get Min Value by Range (Timestamp)</h1>
+            <form method="GET">
+                <div class="form-group row">
+                    <label class="col-form-label">Column Name</label>
+                    <select name="min_column_by_range" class="form-control">
+                        <option value="price" {% if request.GET.min_column_by_range == 'price' %}selected{% endif %}>Price</option>
+                        <option value="size" {% if request.GET.min_column_by_range == 'size' %}selected{% endif %}>Size</option>
+                    </select>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label">start</label>
+                    <input class="form-control" type="number" value="{{request.GET.start_min}}" name="start_min"></input>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label">end</label>
+                    <input class="form-control" type="number" value="{{request.GET.end_min}}" name="end_min"></input>
+                </div>
+                <div class="form-group row">
+                    <input type="submit"></input>
+                </div>
+            </form>
+            <div class="card-body">
+                <p>{{min_column_by_range}}</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.3/js/jquery.dataTables.min.js"></script>
+    <script>
+        $("#list-data").DataTable({
+            "searching":false,
+            "responsive": true,
+            "autoWidth": false,
+            "pageLength": 10,
+        });
+        $("#list-range-data").DataTable({
+            "searching":false,
+            "responsive": true,
+            "autoWidth": false,
+            "pageLength": 10,
+        });
+        $("#list-filtered-data").DataTable({
+            "searching":false,
+            "responsive": true,
+            "autoWidth": false,
+            "pageLength": 10,
+        });
+    </script>
+</html>
